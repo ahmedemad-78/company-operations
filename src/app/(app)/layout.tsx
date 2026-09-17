@@ -3,7 +3,7 @@ import { ROLE, ROLE_LABEL } from "@/lib/constants";
 import { Sidebar } from "./sidebar";
 import { LogoutButton } from "./logout-button";
 import { MobileNavigation } from "./mobile-navigation";
-import { Layers3 } from "lucide-react";
+import { Brand } from "@/components/brand";
 
 export default async function AppLayout({
   children,
@@ -15,11 +15,9 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen">
-      <aside className="no-print hidden w-64 shrink-0 bg-navy-900 p-4 lg:block">
-        <div className="mb-6 flex items-center gap-3 border-b border-white/10 px-2 pb-6 pt-2">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white"><Layers3 size={22} aria-hidden="true" /></span>
-          <div><p className="text-sm font-bold text-white">إدارة وتشغيل الشركة</p>
-          <p className="mt-1 text-xs text-slate-300">مساحة العمل الداخلية</p></div>
+      <aside className="no-print hidden w-64 shrink-0 bg-ink-900 p-4 lg:block">
+        <div className="mb-6 border-b border-white/15 px-2 pb-7 pt-3 text-center text-white">
+          <Brand />
         </div>
         <Sidebar isSuperAdmin={isSuperAdmin} />
       </aside>
@@ -27,11 +25,10 @@ export default async function AppLayout({
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="no-print flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 py-4 sm:px-8">
           <div className="lg:hidden">
-            <p className="text-sm font-bold text-slate-900">إدارة وتشغيل الشركة</p>
+            <Brand size="compact" />
           </div>
-          <p className="hidden text-sm font-medium text-slate-500 lg:block">نظام إدارة وتشغيل الشركة</p>
+          <p className="hidden text-sm font-medium text-slate-500 lg:block">إدارة الشركة</p>
           <div className="flex flex-1 items-center justify-end gap-3">
-            <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-50 font-bold text-brand-700">{user.name.trim().charAt(0)}</span>
             <div className="text-right">
               <p className="text-sm font-medium text-slate-800">{user.name}</p>
               <p className="mt-1 text-xs text-slate-500">{ROLE_LABEL[user.role]}</p>

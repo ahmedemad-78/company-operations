@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cairo } from "next/font/google";
+import { Aref_Ruqaa, Cairo } from "next/font/google";
 import "./globals.css";
 
 const cairo = Cairo({
@@ -8,9 +8,16 @@ const cairo = Cairo({
   display: "swap",
 });
 
+const brandFont = Aref_Ruqaa({
+  variable: "--font-brand",
+  weight: "700",
+  subsets: ["arabic", "latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "نظام إدارة وتشغيل الشركة",
-  description: "نظام داخلي لإدارة الموظفين والحضور والمرتبات والخزنة والتقارير",
+  title: "الأمير موتورز | إدارة الشركة",
+  description: "نظام الأمير موتورز لإدارة الموظفين والحضور والمرتبات والخزنة والتقارير",
 };
 
 export default function RootLayout({
@@ -19,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl" className={`${cairo.variable} h-full`}>
+    <html lang="ar" dir="rtl" className={`${cairo.variable} ${brandFont.variable} h-full`}>
       <body className="min-h-full antialiased">{children}</body>
     </html>
   );

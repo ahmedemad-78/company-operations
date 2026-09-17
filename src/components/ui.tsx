@@ -15,7 +15,7 @@ export function PageHeader({
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold leading-relaxed text-navy-900">{title}</h1>
+        <h1 className="text-2xl font-bold leading-relaxed text-ink-900">{title}</h1>
         {description ? (
           <p className="mt-1 text-sm text-slate-500">{description}</p>
         ) : null}
@@ -41,7 +41,7 @@ export function Card({
   return (
     <section
       className={clsx(
-        "rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-900/[0.03]",
+        "rounded-md border border-slate-200/80 bg-white",
         className,
       )}
     >
@@ -78,11 +78,11 @@ export function StatCard({
     neutral: "text-slate-900",
     positive: "text-emerald-600",
     negative: "text-rose-600",
-    brand: "text-brand-700",
+    brand: "text-ink-900",
   }[tone];
 
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-900/[0.03]">
+    <div className="rounded-md border border-slate-200/80 bg-white p-6">
       <p className="text-sm text-slate-500">{label}</p>
       <p className={clsx("mt-2 text-2xl font-bold num", toneClasses)}>{value}</p>
       {hint ? <p className="mt-1 text-xs text-slate-500">{hint}</p> : null}
@@ -102,7 +102,7 @@ export function Badge({
     success: "bg-emerald-50 text-emerald-700",
     warning: "bg-amber-50 text-amber-700",
     danger: "bg-rose-50 text-rose-700",
-    info: "bg-brand-50 text-brand-700",
+    info: "bg-slate-100 text-slate-700",
   }[tone];
 
   return (
@@ -195,13 +195,13 @@ export function Field({
 }
 
 export const inputClass =
-  "w-full min-h-11 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-base sm:text-sm text-navy-900 transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-50 disabled:text-slate-500";
+  "w-full min-h-11 rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-base sm:text-sm text-ink-900 transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-50 disabled:text-slate-500";
 
 export const buttonClass =
-  "inline-flex items-center justify-center gap-2 min-h-11 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 min-h-11 rounded-md bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60";
 
 export const buttonSecondaryClass =
-  "inline-flex items-center justify-center gap-2 min-h-11 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50";
+  "inline-flex items-center justify-center gap-2 min-h-11 rounded-md border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50";
 
 export const buttonDangerClass =
   "inline-flex items-center justify-center gap-2 rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50";
@@ -216,11 +216,11 @@ export function Alert({
   const tones = {
     error: "border-rose-200 bg-rose-50 text-rose-700",
     success: "border-emerald-200 bg-emerald-50 text-emerald-700",
-    info: "border-brand-200 bg-brand-50 text-brand-700",
+    info: "border-slate-200 bg-slate-50 text-slate-700",
   }[tone];
 
   return (
-    <div role={tone === "error" ? "alert" : "status"} className={clsx("rounded-xl border px-4 py-3 text-sm leading-7", tones)}>
+    <div role={tone === "error" ? "alert" : "status"} className={clsx("rounded-md border px-4 py-3 text-sm leading-7", tones)}>
       {children}
     </div>
   );

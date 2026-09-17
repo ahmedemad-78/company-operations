@@ -40,7 +40,7 @@ export function LoginForm() {
           className={`${inputClass} pl-12`}
           required
         />
-        <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"} aria-pressed={showPassword} aria-controls="login-password" className="absolute inset-y-0 left-0 flex w-11 items-center justify-center rounded-l-xl text-slate-500 hover:text-brand-700">
+        <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"} aria-pressed={showPassword} aria-controls="login-password" className="absolute inset-y-0 left-0 flex w-11 items-center justify-center rounded-l-md text-slate-500 hover:text-brand-700">
           {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
         </button>
         </div>

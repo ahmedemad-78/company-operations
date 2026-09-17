@@ -40,9 +40,9 @@ export function Sidebar({ isSuperAdmin, onNavigate }: { isSuperAdmin: boolean; o
                       onClick={onNavigate}
                       aria-current={active ? "page" : undefined}
                       className={clsx(
-                        "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition",
+                        "flex min-h-11 items-center gap-3 border-r-2 border-transparent rounded-sm px-3 py-2.5 text-sm transition",
                         active
-                          ? "bg-brand-600 font-medium text-white"
+                          ? "border-r-brand-500 bg-white/10 font-medium text-white"
                           : "text-slate-200 hover:bg-white/10 hover:text-white",
                       )}
                     >

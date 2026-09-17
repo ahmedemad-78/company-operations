@@ -2,37 +2,53 @@
 
 @theme inline {
   --font-sans: var(--font-cairo), "Segoe UI", Tahoma, sans-serif;
-  --color-brand-50: #f0fdfa;
-  --color-brand-100: #ccfbf1;
-  --color-brand-200: #99f6e4;
-  --color-brand-500: #14857b;
-  --color-brand-600: #0f766e;
-  --color-brand-700: #115e59;
-  --color-brand-800: #134e4a;
-  --color-navy-900: #102a43;
-  --color-navy-800: #183b56;
+  --color-brand-50: #faf0ef;
+  --color-brand-100: #f3dcda;
+  --color-brand-200: #e8b9b5;
+  --color-brand-500: #bb3834;
+  --color-brand-600: #a32b28;
+  --color-brand-700: #86211f;
+  --color-brand-800: #6c201e;
+  --color-ink-900: #222220;
+  --color-ink-800: #333330;
+  --color-slate-50: #f8f7f4;
+  --color-slate-100: #eeede8;
+  --color-slate-200: #deddd6;
+  --color-slate-300: #c7c5bd;
+  --color-slate-400: #8c8a82;
+  --color-slate-500: #6c6a63;
+  --color-slate-600: #55544e;
+  --color-slate-700: #41413c;
+  --color-slate-800: #30302c;
+  --color-slate-900: #222220;
 }
 
 html,
 body {
-  background: #f4f7fa;
-  color: #102a43;
+  background: #f5f4f0;
+  color: #222220;
   font-family: var(--font-sans);
 }
 
+.brand-wordmark {
+  font-family: var(--font-brand), serif;
+  font-weight: 700;
+  line-height: 1.8;
+}
+
 ::selection {
-  background: #ccfbf1;
-  color: #134e4a;
+  background: #f3dcda;
+  color: #6c201e;
 }
 
 :focus-visible {
-  outline: 3px solid #14857b;
+  outline: 3px solid #bb3834;
   outline-offset: 3px;
 }
 
 button:not(:disabled), summary { cursor: pointer; }
 
-.data-table tbody tr:hover { background: #f4f9f8; }
+.data-table tbody tr:hover { background: #f8f7f4; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; }
