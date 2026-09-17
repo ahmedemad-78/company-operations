@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-cairo), "Segoe UI", Tahoma, sans-serif;
+  --color-brand-50: #eef6ff;
+  --color-brand-100: #d9ebff;
+  --color-brand-500: #2563eb;
+  --color-brand-600: #1d4ed8;
+  --color-brand-700: #1e40af;
+}
+
+html,
+body {
+  background: #f4f6fa;
+  color: #14213d;
+  font-family: var(--font-sans);
+}
+
+/* تحسين عرض الأرقام اللاتينية داخل نص عربي */
+.num {
+  direction: ltr;
+  unicode-bidi: embed;
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ */
+/* أنماط الطباعة — تُستخدم لتصدير التقارير وعروض الأسعار كـPDF        */
+/* ------------------------------------------------------------------ */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #ffffff;
+  }
+
+  .print-area {
+    box-shadow: none !important;
+    border: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+}

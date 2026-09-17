@@ -1,0 +1,464 @@
+// Company Operations Management System — Database Schema
+// ملاحظات تصميم:
+// 1) كل المبالغ Int بالجنيه المصري بدون كسور (قرار BRD رقم 21).
+// 2) لا تُستخدم أنواع enum ولا Json حتى يظل الـschema متوافقًا مع SQLite (محليًا) و Postgres (عند الـDeploy).
+//    القيم المسموحة لكل حقل نصي مذكورة في التعليق أعلاه وموجودة في src/lib/constants.ts
+// 3) الحذف دائمًا Soft Delete عبر deletedAt + deletedById (قرار BRD رقم 6).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // التشغيل عبر الـtransaction pooler (بورت 6543) لأن Vercel serverless
+  url       = env("DATABASE_URL")
+  // تعديلات الـschema والمigrations عبر الـsession pooler (بورت 5432)
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------------------
+// المستخدمون والصلاحيات
+// ---------------------------------------------------------------------------
+
+/// role: SUPER_ADMIN | MANAGER
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  auditLogs AuditLog[]
+}
+
+// ---------------------------------------------------------------------------
+// الموظفون
+// ---------------------------------------------------------------------------
+
+/// status: ACTIVE | INACTIVE
+model Employee {
+  id           String   @id @default(cuid())
+  name         String
+  jobTitle     String
+  basicSalary  Int
+  /// بدل المواصلات الأسبوعي — للمعلومة والتقارير فقط، خارج معادلة المرتب
+  weeklyTransportAllowance Int      @default(0)
+  startDate    DateTime
+  /// آخر يوم عمل — يُملأ عند ترك الموظف العمل، ويُستخدم في حساب المرتب بالتناسب (قرار BRD رقم 33)
+  endDate      DateTime?
+  status       String   @default("ACTIVE")
+  /// الموظف العادي له مواعيد ثابتة 9ص-7م، والمدير الإداري بدون مواعيد ثابتة
+  hasFixedSchedule Boolean @default(true)
+  /// أيام الإجازة المدفوعة الشهرية (1 للموظف العادي، 2 للمدير الإداري)
+  monthlyPaidLeaveDays Int @default(1)
+  note         String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  deletedById String?
+
+  salaryChanges     SalaryChange[]
+  scheduleOverrides ScheduleOverride[]
+  attendance        Attendance[]
+  incentives        Incentive[]
+  deductions        Deduction[]
+  advances          Advance[]
+  payrollLines      PayrollLine[]
+
+  @@index([status])
+  @@index([deletedAt])
+}
+
+model SalaryChange {
+  id            String   @id @default(cuid())
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  oldSalary     Int
+  newSalary     Int
+  effectiveDate DateTime
+  createdAt     DateTime @default(now())
+  createdById   String?
+
+  @@index([employeeId])
+}
+
+/// تعديل مواعيد موظف في يوم معين بدون تغيير الـDefault Schedule
+model ScheduleOverride {
+  id          String   @id @default(cuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  date        DateTime
+  startTime   String
+  endTime     String
+  note        String?
+  createdAt   DateTime @default(now())
+  createdById String?
+  deletedAt   DateTime?
+  deletedById String?
+
+  @@unique([employeeId, date])
+}
+
+// ---------------------------------------------------------------------------
+// الحضور
+// ---------------------------------------------------------------------------
+
+/// status: PRESENT | ABSENT | LEAVE | SICK
+/// الحالة الافتراضية لأي يوم غير مسجل = غياب (قرار BRD رقم 16)
+/// الجمعة والعطلات الرسمية والأيام خارج فترة عمل الموظف مستثناة من التسجيل (قرار BRD رقم 29)
+model Attendance {
+  id           String   @id @default(cuid())
+  employeeId   String
+  employee     Employee @relation(fields: [employeeId], references: [id])
+  date         DateTime
+  status       String
+  /// يوم الجمعة عمل فعلًا => يستحق قيمة يوم إضافي واحد
+  workedFriday Boolean  @default(false)
+  note         String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  deletedAt   DateTime?
+  deletedById String?
+
+  @@unique([employeeId, date])
+  @@index([date])
+}
+
+/// العطلة الرسمية تُسجَّل مرة واحدة على مستوى الشركة كلها، وليست حالة حضور لكل موظف
+/// (قرار BRD رقم 30 — يلغي قرار 5). يوم العطلة: مدفوع، لا يُطلب فيه حضور، ولا يستهلك الإجازة الشهرية.
+model CompanyHoliday {
+  id   String   @id @default(cuid())
+  date DateTime @unique
+  name String
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  deletedAt   DateTime?
+  deletedById String?
+
+  @@index([date])
+}
+
+// ---------------------------------------------------------------------------
+// الحوافز والخصومات
+// ---------------------------------------------------------------------------
+
+/// kind: INCENTIVE | UNUSED_LEAVE   (UNUSED_LEAVE = بدل يوم الإجازة الشهري غير المستخدم، يدوي بالكامل)
+/// valueType: AMOUNT | DAYS | HOURS
+model Incentive {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  year       Int
+  month      Int
+  kind       String   @default("INCENTIVE")
+  valueType  String
+  /// الكمية بالأيام أو الساعات (تسمح بالكسور مثل 1.5 ساعة)، وتُهمل لو النوع AMOUNT
+  quantity   Float    @default(0)
+  /// القيمة النهائية بالجنيه بعد التحويل
+  amount     Int
+  note       String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  deletedAt   DateTime?
+  deletedById String?
+
+  @@index([employeeId, year, month])
+}
+
+/// valueType: AMOUNT | DAYS | HOURS
+model Deduction {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  year       Int
+  month      Int
+  valueType  String
+  quantity   Float    @default(0)
+  amount     Int
+  note       String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  deletedAt   DateTime?
+  deletedById String?
+
+  @@index([employeeId, year, month])
+}
+
+// ---------------------------------------------------------------------------
+// السلف
+// ---------------------------------------------------------------------------
+
+/// fundingSource: COMPANY_CASH | MANAGER_PERSONAL
+/// السلفة مصروف نقدي (لو من خزنة الشركة) + رصيد على الموظف يُستقطع يدويًا من المرتب
+model Advance {
+  id            String   @id @default(cuid())
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  amount        Int
+  date          DateTime
+  fundingSource String   @default("COMPANY_CASH")
+  note          String?
+  /// سلفة قائمة سابقة أُدخلت كرصيد افتتاحي ولا تُنشئ حركة خزنة
+  isOpeningBalance Boolean @default(false)
+
+  cashTransaction CashTransaction?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  deletedAt   DateTime?
+  deletedById String?
+
+  @@index([employeeId])
+  @@index([date])
+}
+
+// ---------------------------------------------------------------------------
+// المرتبات
+// ---------------------------------------------------------------------------
+
+/// status: OPEN | LOCKED
+model PayrollPeriod {
+  id           String    @id @default(cuid())
+  year         Int
+  month        Int
+  status       String    @default("OPEN")
+  /// شهر تاريخي أُدخل بالإجماليات فقط (قرار BRD رقم 22)
+  isHistorical Boolean   @default(false)
+  lockedAt     DateTime?
+  lockedById   String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  lines PayrollLine[]
+
+  @@unique([year, month])
+}
+
+/// paymentStatus: UNPAID | PAID
+/// fundingSource: COMPANY_CASH | MANAGER_PERSONAL
+model PayrollLine {
+  id         String        @id @default(cuid())
+  periodId   String
+  period     PayrollPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  employeeId String
+  employee   Employee      @relation(fields: [employeeId], references: [id])
+
+  // لقطة من بيانات الموظف وقت حساب المرتب
+  basicSalary Int
+  dayValue    Int
+  hourValue   Int
+  /// أيام الاستحقاق في الشهر: 30 عادةً، أو أقل عند الالتحاق/ترك العمل وسط الشهر (قرار BRD رقم 33)
+  entitledDays Int @default(30)
+  /// المرتب الأساسي المستحق بعد التناسب = dayValue × entitledDays
+  earnedBasicSalary Int @default(0)
+
+  // بنود الإضافة
+  incentivesTotal   Int @default(0)
+  unusedLeaveAmount Int @default(0)
+  fridayEarnings    Int @default(0)
+
+  // بنود الخصم
+  absenceDeduction Int @default(0)
+  /// خصم الإجازات الزائدة عن الاستحقاق الشهري (قرار BRD رقم 31)
+  excessLeaveDeduction Int @default(0)
+  deductionsTotal  Int @default(0)
+  advanceDeduction Int @default(0)
+
+  netSalary Int @default(0)
+
+  // لقطة الحضور
+  presentDays   Int @default(0)
+  absentDays    Int @default(0)
+  leaveDays     Int @default(0)
+  /// أيام الإجازة الزائدة عن الاستحقاق الشهري
+  excessLeaveDays Int @default(0)
+  sickDays      Int @default(0)
+  /// عدد أيام العطلات الرسمية في الشهر (من جدول CompanyHoliday)
+  holidayDays   Int @default(0)
+  workedFridays Int @default(0)
+
+  paymentStatus String    @default("UNPAID")
+  paidAt        DateTime?
+  fundingSource String?
+  note          String?
+
+  cashTransaction CashTransaction?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([periodId, employeeId])
+  @@index([employeeId])
+}
+
+// ---------------------------------------------------------------------------
+// الخزنة
+// ---------------------------------------------------------------------------
+
+/// type: COLLECTION | EXPENSE
+/// fundingSource (للمصروفات فقط): COMPANY_CASH | MANAGER_PERSONAL
+///   المصروف من "المدير شخصيًا" لا يدخل في معادلة الإقفال اليومي (BRD 11.2)
+/// origin: MANUAL | SALARY | ADVANCE | TRANSPORT_ALLOWANCE | BEARINGS_PURCHASE
+model CashTransaction {
+  id            String   @id @default(cuid())
+  date          DateTime
+  type          String
+  amount        Int
+  /// الجهة / اسم الدافع / وصف المصروف
+  counterparty  String
+  note          String?
+  fundingSource String   @default("COMPANY_CASH")
+  origin        String   @default("MANUAL")
+
+  payrollLineId String? @unique
+  payrollLine   PayrollLine? @relation(fields: [payrollLineId], references: [id])
+  advanceId     String? @unique
+  advance       Advance?     @relation(fields: [advanceId], references: [id])
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  deletedAt   DateTime?
+  deletedById String?
+
+  @@index([date])
+  @@index([type])
+}
+
+/// status: OPEN | CLOSED
+/// Opening اليوم التالي = Calculated Closing لليوم السابق، والفرق يبقى منفصلًا (BRD 11.5 / 11.6)
+model DailyClosing {
+  id               String   @id @default(cuid())
+  date             DateTime @unique
+  openingBalance   Int
+  collectionsTotal Int      @default(0)
+  expensesTotal    Int      @default(0)
+  calculatedClosing Int     @default(0)
+  actualCash       Int      @default(0)
+  /// actualCash - calculatedClosing : سالب = عجز، موجب = زيادة
+  difference       Int      @default(0)
+  differenceNote   String?
+  status           String   @default("OPEN")
+
+  closedAt      DateTime?
+  closedById    String?
+  reopenedAt    DateTime?
+  reopenedById  String?
+  reopenCount   Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// الرومان بلي — صنف واحد بكمية إجمالية
+// ---------------------------------------------------------------------------
+
+/// type: OPENING | IN | OUT   (الكمية لا تنزل تحت الصفر — قرار BRD رقم 10)
+model BearingMovement {
+  id       String   @id @default(cuid())
+  date     DateTime
+  type     String
+  quantity Int
+  note     String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  deletedAt   DateTime?
+  deletedById String?
+
+  @@index([date])
+}
+
+// ---------------------------------------------------------------------------
+// عروض الأسعار
+// ---------------------------------------------------------------------------
+
+/// mode: ITEMS | LUMP
+model Quotation {
+  id              String   @id @default(cuid())
+  /// رقم العرض يدوي (قرار BRD رقم 23)
+  number          String
+  date            DateTime
+  customerName    String
+  customerCompany String?
+  customerPhone   String?
+  mode            String   @default("ITEMS")
+  lumpDescription String?
+  total           Int      @default(0)
+  validityNote    String?
+  terms           String?
+
+  items QuotationItem[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  deletedAt   DateTime?
+  deletedById String?
+
+  @@index([number])
+  @@index([customerName])
+}
+
+model QuotationItem {
+  id          String    @id @default(cuid())
+  quotationId String
+  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int       @default(1)
+  unitPrice   Int       @default(0)
+  lineTotal   Int       @default(0)
+  sortOrder   Int       @default(0)
+}
+
+// ---------------------------------------------------------------------------
+// Audit Log — للـSuper Admin فقط، ويسجل كل شيء (قرار BRD رقم 24)
+// ---------------------------------------------------------------------------
+
+/// action: CREATE | UPDATE | DELETE | LOGIN | LOGOUT | REOPEN_DAY | CLOSE_DAY | LOCK_PAYROLL | UNLOCK_PAYROLL | PAY_SALARY
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  /// لقطة اسم المستخدم وقت العملية
+  userName    String
+  action      String
+  entity      String
+  entityId    String?
+  /// وصف مقروء للسجل المتأثر (مثال: "مرتب أحمد — 09/2026")
+  entityLabel String?
+  /// JSON كنص (SQLite لا يدعم نوع Json في Prisma)
+  beforeJson  String?
+  afterJson   String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entity])
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// الإعدادات
+// ---------------------------------------------------------------------------
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
