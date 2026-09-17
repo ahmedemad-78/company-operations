@@ -44,6 +44,7 @@ next-env.d.ts
 
 .vercel
 .env*
+!.env.example
 
 # قاعدة البيانات المحلية القديمة (SQLite) — النظام بقى على Postgres
 prisma/dev.db
