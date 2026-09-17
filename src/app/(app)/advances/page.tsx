@@ -112,7 +112,7 @@ export default async function AdvancesPage() {
                   <Td>
                     <Link
                       href={`/employees/${employee.id}`}
-                      className="text-blue-600 hover:underline"
+                      className="text-brand-600 hover:underline"
                     >
                       {employee.name}
                     </Link>

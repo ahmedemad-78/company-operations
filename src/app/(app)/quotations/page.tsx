@@ -133,7 +133,7 @@ export default async function QuotationsPage({
                     <div className="flex items-center gap-3">
                       <Link
                         href={`/quotations/${quotation.id}`}
-                        className="text-sm font-medium text-blue-600 hover:underline"
+                        className="text-sm font-medium text-brand-600 hover:underline"
                       >
                         التفاصيل
                       </Link>

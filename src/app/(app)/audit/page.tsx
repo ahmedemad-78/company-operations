@@ -130,7 +130,7 @@ export default async function AuditPage({
                     <Td>
                       {before || after ? (
                         <details>
-                          <summary className="cursor-pointer text-xs text-blue-600">
+                          <summary className="cursor-pointer text-xs text-brand-600">
                             عرض التفاصيل
                           </summary>
                           <div className="mt-2 grid gap-2 text-xs">

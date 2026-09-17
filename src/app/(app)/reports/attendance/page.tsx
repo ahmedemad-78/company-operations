@@ -122,7 +122,7 @@ export default async function AttendanceReportPage({
                       {row.summary.excessLeaveDays}
                     </Td>
                     <Td className="num">{row.summary.sickDays}</Td>
-                    <Td className="num text-blue-700">{row.summary.workedFridays}</Td>
+                    <Td className="num text-brand-700">{row.summary.workedFridays}</Td>
                     <Td className="num text-slate-400">
                       {row.summary.unrecordedDays}
                     </Td>

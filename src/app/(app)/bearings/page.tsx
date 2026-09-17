@@ -144,7 +144,7 @@ export default async function BearingsPage() {
                         <div className="flex items-start gap-3">
                           <Link
                             href={`/bearings/${movement.id}/edit`}
-                            className="text-sm font-medium text-blue-600 hover:underline"
+                            className="text-sm font-medium text-brand-600 hover:underline"
                           >
                             تعديل
                           </Link>

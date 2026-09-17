@@ -303,7 +303,7 @@ export default async function ClosingPage({
                   <Td className="whitespace-nowrap">
                     <Link
                       href={`/closing?date=${toDateInputValue(row.date)}`}
-                      className="text-blue-600 hover:underline"
+                      className="text-brand-600 hover:underline"
                     >
                       {formatDate(row.date)}
                     </Link>

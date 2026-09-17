@@ -148,7 +148,7 @@ export default async function EmployeesPage({
                   <Td>
                     <Link
                       href={`/employees/${employee.id}`}
-                      className="text-sm font-medium text-blue-600 hover:underline"
+                      className="text-sm font-medium text-brand-600 hover:underline"
                     >
                       التفاصيل
                     </Link>

@@ -210,7 +210,7 @@ export default async function PayrollPage({
                     <Td>
                       <Link
                         href={`/payroll/${row.employee.id}?year=${year}&month=${month}`}
-                        className="font-medium text-blue-600 hover:underline"
+                        className="font-medium text-brand-600 hover:underline"
                       >
                         {row.employee.name}
                       </Link>

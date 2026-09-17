@@ -2,18 +2,40 @@
 
 @theme inline {
   --font-sans: var(--font-cairo), "Segoe UI", Tahoma, sans-serif;
-  --color-brand-50: #eef6ff;
-  --color-brand-100: #d9ebff;
-  --color-brand-500: #2563eb;
-  --color-brand-600: #1d4ed8;
-  --color-brand-700: #1e40af;
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-500: #14857b;
+  --color-brand-600: #0f766e;
+  --color-brand-700: #115e59;
+  --color-brand-800: #134e4a;
+  --color-navy-900: #102a43;
+  --color-navy-800: #183b56;
 }
 
 html,
 body {
-  background: #f4f6fa;
-  color: #14213d;
+  background: #f4f7fa;
+  color: #102a43;
   font-family: var(--font-sans);
+}
+
+::selection {
+  background: #ccfbf1;
+  color: #134e4a;
+}
+
+:focus-visible {
+  outline: 3px solid #14857b;
+  outline-offset: 3px;
+}
+
+button:not(:disabled), summary { cursor: pointer; }
+
+.data-table tbody tr:hover { background: #f4f9f8; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
 }
 
 /* تحسين عرض الأرقام اللاتينية داخل نص عربي */

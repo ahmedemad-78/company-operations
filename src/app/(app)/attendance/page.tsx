@@ -353,7 +353,7 @@ export default async function AttendancePage({
                   <Td>
                     <Link
                       href={`/employees/${employee.id}`}
-                      className="text-blue-600 hover:underline"
+                      className="text-brand-600 hover:underline"
                     >
                       {employee.name}
                     </Link>
@@ -364,7 +364,7 @@ export default async function AttendancePage({
                   <Td className="num">{summary.leaveDays}</Td>
                   <Td className="num text-amber-700">{summary.excessLeaveDays}</Td>
                   <Td className="num">{summary.sickDays}</Td>
-                  <Td className="num text-blue-700">{summary.workedFridays}</Td>
+                  <Td className="num text-brand-700">{summary.workedFridays}</Td>
                   <Td className="num text-slate-400">{summary.unrecordedDays}</Td>
                 </tr>
               ))}

@@ -329,7 +329,7 @@ function RowActions({
 
   return (
     <details>
-      <summary className="cursor-pointer text-xs text-blue-600">تعديل</summary>
+      <summary className="cursor-pointer text-xs text-brand-600">تعديل</summary>
       <div className="mt-3 space-y-3 rounded-lg border border-slate-200 p-3">
         <TransactionForm
           action={updateTransaction}
