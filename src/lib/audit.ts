@@ -23,6 +23,8 @@ function serialize(value: unknown): string | null {
 /**
  * الـAudit Log يسجل كل شيء: إضافة، تعديل، إلغاء، دخول، فتح إقفال (قرار BRD رقم 24).
  * لا يُفشل العملية الأساسية لو فشل التسجيل، لكن يسجل الخطأ في الكونسول.
+ *
+ * الاستثناء الوحيد: حساب صاحب المشروع المخفي — عملياته لا تُسجَّل (قرار BRD رقم 38).
  */
 export async function logAudit({
   user,
@@ -33,6 +35,8 @@ export async function logAudit({
   before,
   after,
 }: AuditInput): Promise<void> {
+  if (user?.hidden) return;
+
   try {
     await prisma.auditLog.create({
       data: {

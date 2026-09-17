@@ -28,7 +28,11 @@ export default async function SettingsPage() {
       where: { deletedAt: null },
       orderBy: { date: "desc" },
     }),
-    prisma.user.findMany({ orderBy: [{ role: "asc" }, { name: "asc" }] }),
+    // حساب صاحب المشروع المخفي لا يظهر في القائمة (قرار BRD رقم 38)
+    prisma.user.findMany({
+      where: { hidden: false },
+      orderBy: [{ role: "asc" }, { name: "asc" }],
+    }),
   ]);
 
   return (

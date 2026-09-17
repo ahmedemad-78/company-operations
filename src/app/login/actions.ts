@@ -42,7 +42,13 @@ export async function login(
 
   await createSession(user.id);
   await logAudit({
-    user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      hidden: user.hidden,
+    },
     action: AUDIT_ACTION.LOGIN,
     entity: "Session",
     entityLabel: `دخول ${user.name}`,

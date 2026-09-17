@@ -25,6 +25,8 @@ export type SessionUser = {
   name: string;
   email: string;
   role: string;
+  /** حساب صاحب المشروع المخفي — لا يظهر في شاشة الحسابات ولا يُسجَّل في سجل التغييرات */
+  hidden: boolean;
 };
 
 export async function hashPassword(password: string): Promise<string> {
@@ -71,11 +73,24 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, email: true, role: true, isActive: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        hidden: true,
+      },
     });
     if (!user || !user.isActive) return null;
 
-    return { id: user.id, name: user.name, email: user.email, role: user.role };
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      hidden: user.hidden,
+    };
   } catch {
     return null;
   }
