@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# الملف النموذجي مفيه أسماء المتغيرات فقط بدون أي قيم حقيقية، فيُشارك مع الكود
+!.env.example
 
 # vercel
 .vercel
