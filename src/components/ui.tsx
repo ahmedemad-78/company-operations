@@ -198,10 +198,10 @@ export const inputClass =
   "w-full min-h-11 rounded-md border border-slate-300 bg-white px-3.5 py-2.5 text-base sm:text-sm text-ink-900 transition focus:border-brand-600 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-50 disabled:text-slate-500";
 
 export const buttonClass =
-  "inline-flex items-center justify-center gap-2 min-h-11 rounded-md bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 min-h-11 rounded-md bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 hover:shadow-md disabled:cursor-wait disabled:opacity-60";
 
 export const buttonSecondaryClass =
-  "inline-flex items-center justify-center gap-2 min-h-11 rounded-md border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50";
+  "inline-flex items-center justify-center gap-2 min-h-11 rounded-md border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm disabled:cursor-wait disabled:opacity-60";
 
 export const buttonDangerClass =
   "inline-flex items-center justify-center gap-2 rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-medium text-rose-600 transition hover:bg-rose-50";
