@@ -93,7 +93,7 @@ export function AdvanceDeductionForm({
           className={`${inputClass} w-28`}
         />
         <button type="submit" className={buttonSecondaryClass} disabled={pending}>
-          {pending ? "..." : "حفظ"}
+          {pending ? "جاري الحفظ..." : "حفظ"}
         </button>
       </div>
     </form>
@@ -138,7 +138,7 @@ export function PayForm({
           </option>
         </select>
         <button type="submit" className={buttonClass} disabled={pending}>
-          {pending ? "..." : "صرف"}
+          {pending ? "جاري الصرف..." : "صرف"}
         </button>
       </div>
     </form>

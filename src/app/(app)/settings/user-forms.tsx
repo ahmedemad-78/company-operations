@@ -78,7 +78,7 @@ export function ResetPasswordForm({
           required
         />
         <button type="submit" className={buttonSecondaryClass} disabled={pending}>
-          {pending ? "..." : "تغيير"}
+          {pending ? "جاري التغيير..." : "تغيير"}
         </button>
       </div>
     </form>
